@@ -1,0 +1,139 @@
+---
+title: "Análise gráfica das notas do ENEM 2016"
+author: "Miguel Conforto e Gustavo Ferreira"
+output:
+  html_notebook: default
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+#Histograma e análise das notas de redação e matemática
+```{r}
+dados <- read.table("ENEM2016.txt", header=T)
+
+Mat <- dados$Mat
+Red <- dados$Red
+
+summary(Red)
+summary(Mat)
+var(Red)
+var(Mat)
+
+par(mfrow=c(1,2))
+hist(Mat,main = "Matemática", xlab = "Nota", ylab = "Densidade", probability = T)
+hist(Red,main = "Redação", xlab = "Nota", ylab = "Densidade", probability = T)
+```
+
+#Ramo e folhas dos dados
+```{r}
+stem(Mat)
+```
+
+```{r}
+stem(Red)
+
+#Dessa forma é possível ver porque o ramo-e-folhas não é utilizado para observações muito extensas 
+```
+
+#Boxplot dos dados
+```{r}
+par(mfrow=c(1,2))
+boxplot(Mat, main = "Matemática", ylab = "Nota")
+boxplot(Red, main = "Redação", ylab = "Nota")
+```
+#Associando o boxplot ao histograma
+```{r}
+par(mfrow = c(2,1))
+hist(Mat,main = "Matemática", xlab = "Nota", ylab = "Densidade", probability = T)
+boxplot(Mat, xlab = "Nota", horizontal = T)
+
+```
+```{r}
+par(mfrow = c(2,1))
+hist(Red,main = "Redação", xlab = "Nota", ylab = "Densidade", probability = T)
+boxplot(Red, xlab = "Nota", horizontal = T)
+```
+
+
+#Fazendo comparação com a Normal
+```{r}
+mdMat <- mean(Mat)
+mdRed <- mean(Red)
+sdMat <- sd(Mat)
+sdRed <- sd(Red)
+
+par(mfrow=c(1,2), oma=c(1,1,1,1))
+
+hist(Mat,main = "Matemática", xlab = "Nota", ylab = "Densidade", probability = T)
+curve(dnorm(x, mean = mdMat, sd = sdMat), col = 2, lwd = 2, add= T)
+
+hist(Red,main = "Redação", xlab = "Nota", ylab = "Densidade", probability = T)
+curve(dnorm(x, mean = mdRed, sd= sdRed), col = 2, lwd = 2, add = T)
+```
+#Curtose e assimetria
+```{r}
+library(moments)
+library(e1071)
+
+curt.Mat <- moments::kurtosis(Mat)
+curt.Red <- moments::kurtosis(Red)
+
+ass.Mat <- skewness(Mat)
+ass.Red <- skewness(Red)
+
+#Assimetria e curtose das notas de matemática, respectivamente
+ass.Mat
+curt.Mat
+
+#Assimetria e curtose das notas de redação, respectivamente
+curt.Red
+ass.Red
+
+```
+
+#Fazendo padronização das observações
+```{r}
+#subtraindo a média de cada observação
+Mat.p <- Mat-mdMat
+Red.p <- Red-mdRed
+
+par(mfrow=c(1,2))
+hist(Mat.p,main = "Matemática", xlab = "Nota", ylab = "Densidade", probability = T)
+hist(Red.p,main = "Redação", xlab = "Nota", ylab = "Densidade", probability = T)
+```
+```{r}
+#Dividindo cada observação pelo desvio padrão
+Mat.p <- Mat.p/sdMat
+Red.p <- Red.p/sdRed
+
+par(mfrow=c(1,2))
+hist(Mat.p,main = "Matemática", xlab = "Nota", ylab = "Densidade", probability = T)
+hist(Red.p,main = "Redação", xlab = "Nota", ylab = "Densidade", probability = T)
+```
+#Padronizada vs Não-Padronizada
+```{r}
+par(mfrow=c(1,2))
+hist(Mat,main = "Matemática", xlab = "Nota", ylab = "Densidade", probability = T)
+hist(Mat.p,main = "Mat. Padronizada", xlab = "Nota", ylab = "Densidade", probability = T)
+
+```
+
+
+#Comparando com a Normal padrão (Média = 0, variância = 1)
+```{r}
+par(mfrow=c(1,2))
+hist(Mat,main = "Matemática", xlab = "Nota", ylab = "Densidade",xlim = c(300,900), probability = T)
+curve(dnorm(x, mean = mdMat, sd = sdMat), col = 2, lwd = 2, add= T)
+
+hist(Mat.p,main = "Mat. Padronizada", xlab = "Nota", ylab = "Densidade",xlim = c(-3,6), probability = T)
+curve(dnorm(x, mean = 0, sd= 1), col = 2, lwd = 2, add = T)
+```
+```{r}
+par(mfrow=c(1,2))
+hist(Red,main = "Redação", xlab = "Nota", ylab = "Densidade",xlim = c(300,900), probability = T)
+curve(dnorm(x, mean = mdRed, sd = sdRed), col = 2, lwd = 2, add= T)
+
+hist(Red.p,main = "Red. Padronizada", xlab = "Nota", ylab = "Densidade",xlim = c(-3,5), probability = T)
+curve(dnorm(x, mean = 0, sd= 1), col = 2, lwd = 2, add = T)
+```
+
